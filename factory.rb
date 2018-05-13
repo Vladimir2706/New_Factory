@@ -15,9 +15,7 @@ class Factory
       end
 
       define_method :== do |other|
-        values = *args.map do |x|
-          x = "@#{x}".to_s
-        end
+        values = *args.map { |x| x = "@#{x}".to_s }
         values.each do |value|
           if self.instance_variable_get(value) == other.instance_variable_get(value)
             return true
@@ -27,17 +25,18 @@ class Factory
         end
       end
 
-      # D = Factory.new
-      # binding.pry
+      define_method :[] do |arg|
+        if arg.is_a?(String) || arg.is_a?(Symbol)
+          self.instance_variable_get("@#{arg}")
+        elsif arg.is_a?(Integer)
+          self.instance_variable_get("@#{ args[arg] }")
+        end
+      end
 
-      # define_method :[] do
-      #
-      # end
-      #
-      # define_method :[]= do
-      #
-      # end
-      #
+      define_method :[]= do
+
+      end
+
       # define_method :dig do
       #
       # end
@@ -77,11 +76,15 @@ class Factory
       # define_method :size do
       #
       # end
-      #
-      # define_method :to_a do
-      #
-      # end
-      #
+
+      define_method :to_a do
+        arr_values = []
+        self.instance_variables.each do |var|
+          arr_values << self.instance_variable_get(var)
+        end
+        arr_values
+      end
+
       # define_method :to_h do
       #
       # end
@@ -104,7 +107,7 @@ end
 Cat = Factory.new("name", "age")
 x = Cat.new('Tom', 5)
 y = Cat.new('Tina', 7)
-z = Cat.new('Harfield', 5)
+z = Cat.new('Tom', 5)
 
 x == z
 x == y
