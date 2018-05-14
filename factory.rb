@@ -61,13 +61,14 @@ class Factory
       #
       # end
       #
-      # define_method :length do
-      #
-      # end
-      #
-      # define_method :members do
-      #
-      # end
+      define_method :length do
+        self.instance_variables.length
+      end
+      alias :size :length
+
+      define_method :members do
+        instance_variables.map { |member| member.to_s.gsub(/@/, '').to_sym }
+      end
       #
       # define_method :select do
       #
