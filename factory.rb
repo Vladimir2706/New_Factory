@@ -6,7 +6,6 @@ class Factory
     Class.new do
       # raise ArgumentError, 'wrong number of arguments (0 for 1+)' if args.length < 1
       # include Enumerable
-      attr_accessor *args
 
       define_method :initialize do |*val|
         args.zip(val).each do |k, v|
@@ -24,57 +23,49 @@ class Factory
           end
         end
       end
+      alias :eql? :==
 
-      define_method :[] do |arg|
-        if arg.is_a?(String) || arg.is_a?(Symbol)
-          self.instance_variable_get("@#{arg}")
-        elsif arg.is_a?(Integer)
-          self.instance_variable_get("@#{ args[arg] }")
+      args.each do |attribute|
+        attr_accessor attribute
+
+        define_method :[] do |arg|
+          if arg.is_a?(String) || arg.is_a?(Symbol)
+            self.instance_variable_get("@#{arg}")
+          elsif arg.is_a?(Integer)
+            self.instance_variable_get("@#{args[arg]}")
+          end
         end
-      end
 
-      define_method :[]= do
-
+        define_method :[]= do |arg, val|
+          self.instance_variable_set("@#{arg}", val)
+        end
       end
 
       # define_method :dig do
       #
       # end
-      #
+
       # define_method :each do
       #
       # end
-      #
+
       # define_method :each_pair do
       #
       # end
-      #
-      # define_method :eql? do
-      #
-      # end
-      #
+
       # define_method :hash do
       #
       # end
-      #
-      # define_method :inspect do
-      #
-      # end
-      #
+
       define_method :length do
         self.instance_variables.length
       end
-      alias :size :length
 
       define_method :members do
         instance_variables.map { |member| member.to_s.gsub(/@/, '').to_sym }
       end
-      #
+
       # define_method :select do
-      #
-      # end
-      #
-      # define_method :size do
       #
       # end
 
@@ -86,21 +77,32 @@ class Factory
         arr_values
       end
 
-      # define_method :to_h do
-      #
-      # end
-      #
-      # define_method :to_s do
-      #
-      # end
-      #
+      define_method :to_h do
+        keys = *args.map { |x| x = x.to_sym }
+        values = []
+        self.instance_variables.each do |val|
+          value = instance_variable_get(val)
+          values << value
+        end
+        h = keys.zip(values).to_h
+        h
+      end
+
+      define_method :to_s do
+        vars = lambda { |x| '%s="%s"' % [x[1..-1], instance_variable_get(x)] }
+        '#<struct %s %s>' % [self.class, instance_variables.map(&vars).join(' ')]
+      end
+
       # define_method :values do
       #
       # end
-      #
+
       # define_method :values_at do
       #
       # end
+      
+      alias :size :length
+      alias :inspect :to_s
     end
   end
 end
