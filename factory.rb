@@ -65,9 +65,9 @@ class Factory
         instance_variables.map { |member| member.to_s.gsub(/@/, '').to_sym }
       end
 
-      # define_method :select do
-      #
-      # end
+      define_method :select do |&block|
+        block ? values.select(&block) : to_enum
+      end
 
       define_method :to_a do
         arr_values = []
@@ -93,14 +93,11 @@ class Factory
         '#<struct %s %s>' % [self.class, instance_variables.map(&vars).join(' ')]
       end
 
-      # define_method :values do
-      #
-      # end
+      define_method :values_at do |*indexes|
+        self.values(*indexes)
+      end
 
-      # define_method :values_at do
-      #
-      # end
-      
+      alias :values :to_a
       alias :size :length
       alias :inspect :to_s
     end
@@ -114,3 +111,12 @@ z = Cat.new('Tom', 5)
 
 x == z
 x == y
+
+Arr = Factory.new("arr1", "arr2", "arr3")
+t = Arr.new("ziro", "one", "two", "three")
+c = Arr.new(0, 1, 2, 3)
+c.select {|x| x.even?}
+t[1]
+t[1, 2]
+c[1]
+c[1, 2]
