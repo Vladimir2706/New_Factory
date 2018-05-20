@@ -4,10 +4,11 @@ class Factory
   def self.new(*args, keyword_init: false, &block)
 
     Class.new do
-      # raise ArgumentError, 'wrong number of arguments (0 for 1+)' if args.length < 1
-      # include Enumerable
+      include Enumerable
 
       define_method :initialize do |*val|
+        raise ArgumentError, 'Too much arguments' if val.size > args.size
+        raise ArgumentError, 'Wrong number of arguments' if val.size < args.size
         args.zip(val).each do |k, v|
           instance_variable_set("@#{k}", v)
         end
@@ -51,11 +52,8 @@ class Factory
 
       define_method :each_pair do |&block|
         self.to_h.each_pair(&block)
+        self
       end
-
-      # define_method :hash do
-      #
-      # end
 
       define_method :length do
         self.instance_variables.length
@@ -103,22 +101,3 @@ class Factory
     end
   end
 end
-
-Cat = Factory.new("name", "age")
-x = Cat.new('Tom', 5)
-y = Cat.new('Tina', 7)
-z = Cat.new('Tom', 5)
-
-x == z
-x == y
-
-Arr = Factory.new("arr1", "arr2", "arr3")
-t = Arr.new("ziro", "one", "two", "three")
-c = Arr.new(0, 1, 2, 3)
-c.select {|x| x.even?}
-t.values_at(1)
-t.values_at(1, 2)
-c.values_at(1)
-c.values_at(1, 2)
-x.each {|x| puts x}
-x.each_pair {|name, value| puts "#{name} => #{value}"}
