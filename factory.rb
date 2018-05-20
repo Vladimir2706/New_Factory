@@ -41,17 +41,17 @@ class Factory
         end
       end
 
-      # define_method :dig do
-      #
-      # end
+      define_method :dig do |*args|
+        self.to_h.dig(*args)
+      end
 
-      # define_method :each do
-      #
-      # end
+      define_method :each do |&block|
+        self.values.each(&block)
+      end
 
-      # define_method :each_pair do
-      #
-      # end
+      define_method :each_pair do |&block|
+        self.to_h.each_pair(&block)
+      end
 
       # define_method :hash do
       #
@@ -94,7 +94,7 @@ class Factory
       end
 
       define_method :values_at do |*indexes|
-        self.values(*indexes)
+        self.values.to_a.values_at(*indexes)
       end
 
       alias :values :to_a
@@ -116,7 +116,9 @@ Arr = Factory.new("arr1", "arr2", "arr3")
 t = Arr.new("ziro", "one", "two", "three")
 c = Arr.new(0, 1, 2, 3)
 c.select {|x| x.even?}
-t[1]
-t[1, 2]
-c[1]
-c[1, 2]
+t.values_at(1)
+t.values_at(1, 2)
+c.values_at(1)
+c.values_at(1, 2)
+x.each {|x| puts x}
+x.each_pair {|name, value| puts "#{name} => #{value}"}
